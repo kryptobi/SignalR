@@ -1,0 +1,39 @@
+<html>
+<head>
+    <title>SignalR client</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/6.0.1/signalr.js"></script>
+
+    <script type="text/javascript">
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("https://localhost:7069/chat")
+            .build();
+
+        async function start() {
+            try {
+                await connection.start();
+                console.log("SignalR Connected.");
+                await connection.invoke("ChatEntered", "123");
+                await connection.invoke("ToServer", "123");
+                await connection.invoke("ChatLeft", "123");
+                await connection.invoke("ToServer", "123");
+
+            } catch (err) {
+                console.log(err);
+                setTimeout(start, 5000);
+            }
+        };
+
+        connection.on("SendMessage", (message) => {
+            console.log("From Server: ", message)
+        });
+
+
+        connection.onclose(async () => {
+            await start();
+        });
+
+        start();
+    </script>
+
+</head>
+</html>
